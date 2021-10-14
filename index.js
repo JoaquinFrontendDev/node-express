@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const routerApi = require('./routes');
 const {
   logErrors,
@@ -6,16 +7,25 @@ const {
   boomErrorHandler,
 } = require('./middlewares/error.handler');
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 
+const whiteList = ['http://localhost:8080', 'https://api.example.com'];
+const options = {
+  origin: (origin, callback) => {
+    if (whiteList.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Acceso denegado'));
+    }
+  },
+};
+
+app.use(cors(options));
+
 app.get('/', (req, res) => {
   res.send('Hello, World!');
-});
-
-app.get('/new-route', (req, res) => {
-  res.send(`Hi, I'm your new route :D`);
 });
 
 routerApi(app);
