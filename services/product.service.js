@@ -1,5 +1,6 @@
 const faker = require('faker');
 const boom = require('@hapi/boom');
+const { models } = require('../libs/sequelize');
 
 class ProductsService {
   constructor() {
@@ -14,6 +15,7 @@ class ProductsService {
         id: faker.datatype.uuid(),
         name: faker.commerce.productName(),
         price: +faker.commerce.price(),
+        stock: +faker.datatype.number(),
         image: faker.image.imageUrl(),
         isBlock: faker.datatype.boolean(),
       });
@@ -21,51 +23,33 @@ class ProductsService {
   }
 
   async create(data) {
-    const newProduct = {
-      id: faker.datatype.uuid(),
-      ...data,
-    };
-    this.products.push(newProduct);
+    const newProduct = await models.Product.create(data);
     return newProduct;
   }
 
   async find() {
-    return this.products;
+    const rta = await models.Product.findAll();
+    return rta;
   }
 
   async findOne(id) {
-    const product = this.products.find((item) => item.id === id);
+    const product = await models.Product.findByPk(id);
     if (!product) {
       throw boom.notFound('Product not found');
-    }
-    if (product.isBlock) {
-      throw boom.conflict('Product is blocked');
     }
     return product;
   }
 
   async update(id, changes) {
-    const index = this.products.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw boom.notFound('Product not found');
-    } else {
-      const product = this.products[index];
-      this.products[index] = {
-        ...product,
-        ...changes,
-      };
-      return this.products[index];
-    }
+    const product = await this.findOne(id);
+    const rta = await product.update(changes);
+    return rta;
   }
 
   async delete(id) {
-    const index = this.products.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw boom.notFound('Product not found');
-    }
-    this.products.splice(index, 1);
-    return { message: `Producto eliminado con ID: ${id}` };
+    const product = await this.findOne(id);
+    await product.destroy(id);
+    return product;
   }
 }
-
 module.exports = ProductsService;

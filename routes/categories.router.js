@@ -2,26 +2,26 @@ const express = require('express');
 const CategoriesService = require('.././services/categories.service');
 const validationHandler = require('../middlewares/validationHandler');
 const {
-  getCategorieSchema,
-  createCategorieSchema,
-  updateCategorieSchema,
+  getCategorySchema,
+  createCategorySchema,
+  updateCategorySchema,
 } = require('../schemas/categories.schema');
 const router = express.Router();
 const service = new CategoriesService();
 
 router.get('/', async (req, res) => {
-  const categories = await service.find();
-  res.json(categories);
+  const categorys = await service.find();
+  res.json(categorys);
 });
 
 router.get(
   '/:id',
-  validationHandler(getCategorieSchema, 'params'),
+  validationHandler(getCategorySchema, 'params'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const categorie = await service.findOne(id);
-      res.json(categorie);
+      const category = await service.findOne(id);
+      res.json(category);
     } catch (error) {
       next(error);
     }
@@ -30,24 +30,28 @@ router.get(
 
 router.post(
   '/',
-  validationHandler(createCategorieSchema, 'body'),
+  validationHandler(createCategorySchema, 'body'),
   async (req, res, next) => {
-    const body = req.body;
-    const newCategorie = await service.create(body);
-    res.status(201).json(newCategorie);
+    try {
+      const body = req.body;
+      const newCategory = await service.create(body);
+      res.status(201).json(newCategory);
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
 router.patch(
   '/:id',
-  validationHandler(getCategorieSchema, 'params'),
-  validationHandler(updateCategorieSchema, 'body'),
+  validationHandler(getCategorySchema, 'params'),
+  validationHandler(updateCategorySchema, 'body'),
   async (req, res, next) => {
     try {
       const { id } = req.params;
       const body = req.body;
-      const categorie = await service.update(id, body);
-      res.status(200).json(categorie);
+      const category = await service.update(id, body);
+      res.status(200).json(category);
     } catch (error) {
       next(error);
     }
@@ -57,8 +61,8 @@ router.patch(
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deletedCategorie = await service.delete(id);
-    res.status(200).json(deletedCategorie);
+    const deletedCategory = await service.delete(id);
+    res.status(200).json(deletedCategory);
   } catch (error) {
     next(error);
   }
