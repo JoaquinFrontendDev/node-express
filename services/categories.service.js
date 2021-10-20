@@ -1,5 +1,5 @@
-/* const boom = require('@hapi/boom');
- */
+const boom = require('@hapi/boom');
+
 const { models } = require('../libs/sequelize');
 
 class CategoriesService {
@@ -18,6 +18,9 @@ class CategoriesService {
     const category = await models.Category.findByPk(id, {
       include: ['products'],
     });
+    if (!category) {
+      throw boom.notFound('Category not found');
+    }
     return category;
   }
 
