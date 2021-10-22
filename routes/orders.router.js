@@ -9,13 +9,9 @@ const {
 const router = express.Router();
 const service = new OrderService();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const orders = await service.find();
-    res.json(orders);
-  } catch (error) {
-    next(error);
-  }
+router.get('/', async (req, res) => {
+  const orders = await service.find();
+  res.json(orders);
 });
 
 router.get(
